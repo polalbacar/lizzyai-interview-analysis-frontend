@@ -74,124 +74,108 @@ const Upload = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left Side - Hero Content */}
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              AI-Powered Interview
-              <span className="text-primary block">Analysis</span>
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8">
-              Upload interview recordings and get instant AI-driven candidate evaluation with detailed insights and scoring.
-            </p>
-            
-            {/* Features */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <Mic className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">Speech Analysis</h3>
-                  <p className="text-sm text-muted-foreground">Advanced speech-to-text and conversation analysis</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">AI Scoring</h3>
-                  <p className="text-sm text-muted-foreground">Intelligent evaluation with detailed question breakdown</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">Candidate Insights</h3>
-                  <p className="text-sm text-muted-foreground">Comprehensive candidate assessment and recommendations</p>
-                </div>
-              </div>
+      <div className="container mx-auto px-6 py-12 max-w-6xl">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+            AI-Powered Interview
+            <span className="text-primary block">Analysis</span>
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Upload interview recordings and get instant AI-driven candidate evaluation with detailed insights and scoring.
+          </p>
+          
+          {/* Features */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-card p-6 rounded-lg border shadow-sm">
+              <Mic className="h-8 w-8 text-primary mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Speech Analysis</h3>
+              <p className="text-sm text-muted-foreground">Advanced speech-to-text and conversation analysis</p>
+            </div>
+            <div className="bg-card p-6 rounded-lg border shadow-sm">
+              <BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">AI Scoring</h3>
+              <p className="text-sm text-muted-foreground">Intelligent evaluation with detailed question breakdown</p>
+            </div>
+            <div className="bg-card p-6 rounded-lg border shadow-sm">
+              <Users className="h-8 w-8 text-primary mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Candidate Insights</h3>
+              <p className="text-sm text-muted-foreground">Comprehensive candidate assessment and recommendations</p>
             </div>
           </div>
-
-          {/* Right Side - Upload Form */}
-          <div>
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-xl">Upload Interview Recording</CardTitle>
-                <CardDescription>
-                  Upload an audio file along with candidate details to begin AI analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="candidateName">Candidate Name</Label>
-                      <Input
-                        id="candidateName"
-                        value={candidateName}
-                        onChange={(e) => setCandidateName(e.target.value)}
-                        placeholder="Enter candidate name"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Role</Label>
-                      <Input
-                        id="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        placeholder="e.g. Software Engineer"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="audioFile">Interview Recording</Label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                      <input
-                        id="audioFile"
-                        type="file"
-                        accept="audio/*"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                      <label htmlFor="audioFile" className="cursor-pointer">
-                        {file ? (
-                          <div className="flex items-center justify-center space-x-2 text-primary">
-                            <CheckCircle className="h-5 w-5" />
-                            <span className="text-sm">{file.name}</span>
-                          </div>
-                        ) : (
-                          <div>
-                            <UploadIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-muted-foreground mb-1 text-sm">
-                              Click to upload or drag and drop
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Supports MP3, WAV, M4A files
-                            </p>
-                          </div>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-
-                  <Button type="submit" className="w-full" size="lg">
-                    <Brain className="mr-2 h-4 w-4" />
-                    Analyze Interview
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
         </div>
+
+        {/* Upload Form */}
+        <Card className="max-w-2xl mx-auto shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Upload Interview Recording</CardTitle>
+            <CardDescription>
+              Upload an audio file along with candidate details to begin AI analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="candidateName">Candidate Name</Label>
+                  <Input
+                    id="candidateName"
+                    value={candidateName}
+                    onChange={(e) => setCandidateName(e.target.value)}
+                    placeholder="Enter candidate name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Input
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="e.g. Software Engineer"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="audioFile">Interview Recording</Label>
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    id="audioFile"
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label htmlFor="audioFile" className="cursor-pointer">
+                    {file ? (
+                      <div className="flex items-center justify-center space-x-2 text-primary">
+                        <CheckCircle className="h-5 w-5" />
+                        <span>{file.name}</span>
+                      </div>
+                    ) : (
+                      <div>
+                        <UploadIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Supports MP3, WAV, M4A files
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" size="lg">
+                <Brain className="mr-2 h-4 w-4" />
+                Analyze Interview
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
