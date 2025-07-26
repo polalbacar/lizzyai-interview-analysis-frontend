@@ -76,7 +76,7 @@ const Upload = () => {
 
       <div className="container mx-auto px-6 py-12 max-w-6xl">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             AI-Powered Interview
             <span className="text-primary block">Analysis</span>
@@ -84,29 +84,10 @@ const Upload = () => {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Upload interview recordings and get instant AI-driven candidate evaluation with detailed insights and scoring.
           </p>
-          
-          {/* Features */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-card p-6 rounded-lg border shadow-sm">
-              <Mic className="h-8 w-8 text-primary mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">Speech Analysis</h3>
-              <p className="text-sm text-muted-foreground">Advanced speech-to-text and conversation analysis</p>
-            </div>
-            <div className="bg-card p-6 rounded-lg border shadow-sm">
-              <BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">AI Scoring</h3>
-              <p className="text-sm text-muted-foreground">Intelligent evaluation with detailed question breakdown</p>
-            </div>
-            <div className="bg-card p-6 rounded-lg border shadow-sm">
-              <Users className="h-8 w-8 text-primary mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">Candidate Insights</h3>
-              <p className="text-sm text-muted-foreground">Comprehensive candidate assessment and recommendations</p>
-            </div>
-          </div>
         </div>
 
         {/* Upload Form */}
-        <Card className="max-w-2xl mx-auto shadow-lg">
+        <Card className="max-w-2xl mx-auto shadow-lg mb-16">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Upload Interview Recording</CardTitle>
             <CardDescription>
@@ -176,6 +157,25 @@ const Upload = () => {
             </form>
           </CardContent>
         </Card>
+
+        {/* Features */}
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="bg-card p-6 rounded-lg border shadow-sm text-center">
+            <Mic className="h-8 w-8 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold mb-2">Speech Analysis</h3>
+            <p className="text-sm text-muted-foreground">Advanced speech-to-text and conversation analysis</p>
+          </div>
+          <div className="bg-card p-6 rounded-lg border shadow-sm text-center">
+            <BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold mb-2">AI Scoring</h3>
+            <p className="text-sm text-muted-foreground">Intelligent evaluation with detailed question breakdown</p>
+          </div>
+          <div className="bg-card p-6 rounded-lg border shadow-sm text-center">
+            <Users className="h-8 w-8 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold mb-2">Candidate Insights</h3>
+            <p className="text-sm text-muted-foreground">Comprehensive candidate assessment and recommendations</p>
+          </div>
+        </div>
       </div>
     </div>
   );
