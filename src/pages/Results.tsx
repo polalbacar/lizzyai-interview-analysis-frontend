@@ -206,17 +206,12 @@ const Results = () => {
                         </CardTitle>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <div className="text-center">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-1 ${q.fraudScore <= 20 ? 'bg-success text-success-foreground' : q.fraudScore <= 50 ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
-                            {q.fraudScore}
-                          </div>
-                          <Badge 
-                            variant={getFraudColor(q.fraudScore) as any} 
-                            className="text-xs px-2 py-0.5 font-medium"
-                          >
-                            {getFraudStatus(q.fraudScore)}
-                          </Badge>
-                        </div>
+                        <Badge 
+                          variant={getFraudColor(q.fraudScore) as any} 
+                          className="text-sm px-3 py-1 font-medium"
+                        >
+                          {getFraudStatus(q.fraudScore)}
+                        </Badge>
                         <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                       </div>
                     </div>
@@ -224,6 +219,14 @@ const Results = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <CardContent className="pt-0 space-y-4">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="font-medium text-foreground">Risk Score:</h4>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${q.fraudScore <= 20 ? 'bg-success text-success-foreground' : q.fraudScore <= 50 ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
+                          {q.fraudScore}
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <h4 className="font-medium text-foreground mb-2">Candidate Response:</h4>
                       <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-lg">
