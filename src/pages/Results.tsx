@@ -152,64 +152,27 @@ const Results = () => {
           </div>
         </div>
 
-        {/* Final Score Card */}
-        <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+        {/* Main Fraud Detection Card */}
+        <Card className={`mb-8 ${overallFraudScore <= 20 ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' : overallFraudScore <= 50 ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20' : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'}`}>
           <CardContent className="pt-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-primary/10 border-4 border-primary/20 mb-4">
-                <span className="text-4xl font-bold text-primary">{finalScore}</span>
+              <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${overallFraudScore <= 20 ? 'bg-success/10 border-4 border-success/20' : overallFraudScore <= 50 ? 'bg-warning/10 border-4 border-warning/20' : 'bg-destructive/10 border-4 border-destructive/20'}`}>
+                <span className={`text-4xl font-bold ${overallFraudScore <= 20 ? 'text-success' : overallFraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{overallFraudScore}</span>
               </div>
-              <h2 className="text-2xl font-bold mb-2">Overall Interview Score</h2>
-              <Badge variant={getScoreColor(finalScore) as any} className="text-sm px-4 py-1">
-                {getScoreBadge(finalScore)}
+              <h2 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
+                <Shield className="h-6 w-6" />
+                Overall Fraud Risk Score
+              </h2>
+              <Badge variant={getFraudColor(overallFraudScore) as any} className="text-sm px-4 py-1">
+                {getFraudStatus(overallFraudScore)}
               </Badge>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-                Based on AI analysis of responses, this candidate demonstrates strong technical skills 
-                and good communication abilities with areas for growth in leadership examples.
+                {overallFraudScore <= 20 
+                  ? "Interview shows minimal signs of fraudulent behavior. Natural responses and authentic voice patterns detected throughout."
+                  : overallFraudScore <= 50 
+                  ? "Some potential fraud indicators detected. Review individual question analysis for specific concerns that need attention."
+                  : "Multiple fraud indicators detected across questions. Manual review and verification strongly recommended before proceeding."}
               </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Fraud Detection Card */}
-        <Card className={`mb-8 ${overallFraudScore <= 20 ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' : overallFraudScore <= 50 ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20' : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'}`}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-6 w-6" />
-              Fraud Detection Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-4">
-                  <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${overallFraudScore <= 20 ? 'bg-success/10 border-4 border-success/20' : overallFraudScore <= 50 ? 'bg-warning/10 border-4 border-warning/20' : 'bg-destructive/10 border-4 border-destructive/20'}`}>
-                    <span className={`text-2xl font-bold ${overallFraudScore <= 20 ? 'text-success' : overallFraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{overallFraudScore}</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-1">Fraud Risk Score</h3>
-                    <Badge variant={getFraudColor(overallFraudScore) as any} className="text-sm px-3 py-1">
-                      {getFraudStatus(overallFraudScore)}
-                    </Badge>
-                  </div>
-                </div>
-                <p className="text-muted-foreground mt-4">
-                  {overallFraudScore <= 20 
-                    ? "Interview shows minimal signs of fraudulent behavior. Natural responses detected."
-                    : overallFraudScore <= 50 
-                    ? "Some potential concerns detected. Review individual question analysis for details."
-                    : "Multiple fraud indicators detected. Manual review recommended."}
-                </p>
-              </div>
-              <div className="text-right">
-                {overallFraudScore <= 20 ? (
-                  <CheckCircle className="h-16 w-16 text-success" />
-                ) : overallFraudScore <= 50 ? (
-                  <AlertTriangle className="h-16 w-16 text-warning" />
-                ) : (
-                  <XCircle className="h-16 w-16 text-destructive" />
-                )}
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -236,22 +199,13 @@ const Results = () => {
                   <CardTitle className="text-lg leading-relaxed pr-4">
                     Q{index + 1}: {q.question}
                   </CardTitle>
-                  <div className="text-right shrink-0 space-y-2">
-                    <div>
-                      <div className="text-2xl font-bold text-primary mb-1">{q.score}</div>
-                      <Badge variant={getScoreColor(q.score) as any} className="text-xs">
-                        {getScoreBadge(q.score)}
-                      </Badge>
+                  <div className="text-center shrink-0">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-2 ${q.fraudScore <= 20 ? 'bg-success/10 border-2 border-success/20' : q.fraudScore <= 50 ? 'bg-warning/10 border-2 border-warning/20' : 'bg-destructive/10 border-2 border-destructive/20'}`}>
+                      <span className={`text-xl font-bold ${q.fraudScore <= 20 ? 'text-success' : q.fraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{q.fraudScore}</span>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1 mb-1">
-                        <Shield className="h-3 w-3" />
-                        <span className="text-sm font-medium">Fraud: {q.fraudScore}</span>
-                      </div>
-                      <Badge variant={getFraudColor(q.fraudScore) as any} className="text-xs">
-                        {getFraudStatus(q.fraudScore)}
-                      </Badge>
-                    </div>
+                    <Badge variant={getFraudColor(q.fraudScore) as any} className="text-xs px-2 py-1">
+                      {getFraudStatus(q.fraudScore)}
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
