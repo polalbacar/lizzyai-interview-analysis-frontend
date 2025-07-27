@@ -3,13 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowLeft, Download, Share2 } from "lucide-react";
+import { Brain, ArrowLeft, Download, Share2, Shield, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+
+interface FraudIndicator {
+  type: string;
+  detected: boolean;
+  confidence: number;
+  description: string;
+}
 
 interface Question {
   question: string;
   answer: string;
   score: number;
   feedback: string;
+  fraudScore: number;
+  fraudIndicators: FraudIndicator[];
 }
 
 interface ResultData {
@@ -23,32 +32,57 @@ const Results = () => {
   const navigate = useNavigate();
   const [resultData, setResultData] = useState<ResultData | null>(null);
   const [finalScore] = useState(78); // Mock final score
+  const [overallFraudScore] = useState(15); // Mock fraud score (0-100, lower is better)
 
-  // Mock questions and answers
+  // Mock questions and answers with fraud detection
   const [questions] = useState<Question[]>([
     {
       question: "Tell me about your experience with React and modern JavaScript frameworks.",
       answer: "I have been working with React for about 3 years now. I've built several production applications using React with TypeScript, and I'm familiar with hooks, context API, and state management libraries like Redux. I also have experience with Next.js for server-side rendering.",
       score: 85,
-      feedback: "Strong technical knowledge demonstrated. Good understanding of modern React patterns."
+      feedback: "Strong technical knowledge demonstrated. Good understanding of modern React patterns.",
+      fraudScore: 10,
+      fraudIndicators: [
+        { type: "Text-to-Speech", detected: false, confidence: 95, description: "Natural speech patterns detected" },
+        { type: "Reading Script", detected: false, confidence: 90, description: "Spontaneous response with natural pauses" },
+        { type: "External Help", detected: false, confidence: 85, description: "No suspicious background activity" }
+      ]
     },
     {
       question: "Describe a challenging problem you solved in your previous role.",
       answer: "In my last project, we had a performance issue where our application was loading slowly. I identified that we were making too many API calls and implemented a caching strategy using React Query. This reduced load times by 40%.",
       score: 82,
-      feedback: "Excellent problem-solving approach. Shows initiative and technical depth."
+      feedback: "Excellent problem-solving approach. Shows initiative and technical depth.",
+      fraudScore: 25,
+      fraudIndicators: [
+        { type: "Text-to-Speech", detected: false, confidence: 88, description: "Natural intonation detected" },
+        { type: "Reading Script", detected: true, confidence: 70, description: "Some sections may have been rehearsed" },
+        { type: "External Help", detected: false, confidence: 92, description: "No external assistance detected" }
+      ]
     },
     {
       question: "How do you handle working in a team environment?",
       answer: "I believe communication is key. I always make sure to participate actively in stand-ups and code reviews. I'm comfortable giving and receiving feedback, and I try to mentor junior developers when possible.",
       score: 75,
-      feedback: "Good team collaboration skills. Could provide more specific examples."
+      feedback: "Good team collaboration skills. Could provide more specific examples.",
+      fraudScore: 5,
+      fraudIndicators: [
+        { type: "Text-to-Speech", detected: false, confidence: 98, description: "Authentic voice patterns" },
+        { type: "Reading Script", detected: false, confidence: 95, description: "Natural conversational flow" },
+        { type: "External Help", detected: false, confidence: 90, description: "No signs of coaching" }
+      ]
     },
     {
       question: "Where do you see yourself in 5 years?",
       answer: "I want to continue growing as a developer and eventually move into a technical leadership role. I'm interested in architecture decisions and helping shape the technical direction of products.",
       score: 70,
-      feedback: "Clear career aspirations. Shows ambition and forward thinking."
+      feedback: "Clear career aspirations. Shows ambition and forward thinking.",
+      fraudScore: 20,
+      fraudIndicators: [
+        { type: "Text-to-Speech", detected: false, confidence: 85, description: "Minor robotic qualities detected" },
+        { type: "Reading Script", detected: true, confidence: 75, description: "Response appears prepared" },
+        { type: "Long Silences", detected: true, confidence: 65, description: "Unusual pauses before answering" }
+      ]
     }
   ]);
 
@@ -75,6 +109,18 @@ const Results = () => {
     if (score >= 80) return "Excellent";
     if (score >= 60) return "Good";
     return "Needs Improvement";
+  };
+
+  const getFraudColor = (score: number) => {
+    if (score <= 20) return "success";
+    if (score <= 50) return "warning";
+    return "destructive";
+  };
+
+  const getFraudStatus = (score: number) => {
+    if (score <= 20) return "Low Risk";
+    if (score <= 50) return "Medium Risk";
+    return "High Risk";
   };
 
   return (
@@ -125,6 +171,49 @@ const Results = () => {
           </CardContent>
         </Card>
 
+        {/* Fraud Detection Card */}
+        <Card className={`mb-8 ${overallFraudScore <= 20 ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' : overallFraudScore <= 50 ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20' : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'}`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-6 w-6" />
+              Fraud Detection Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-4">
+                  <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${overallFraudScore <= 20 ? 'bg-success/10 border-4 border-success/20' : overallFraudScore <= 50 ? 'bg-warning/10 border-4 border-warning/20' : 'bg-destructive/10 border-4 border-destructive/20'}`}>
+                    <span className={`text-2xl font-bold ${overallFraudScore <= 20 ? 'text-success' : overallFraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{overallFraudScore}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-1">Fraud Risk Score</h3>
+                    <Badge variant={getFraudColor(overallFraudScore) as any} className="text-sm px-3 py-1">
+                      {getFraudStatus(overallFraudScore)}
+                    </Badge>
+                  </div>
+                </div>
+                <p className="text-muted-foreground mt-4">
+                  {overallFraudScore <= 20 
+                    ? "Interview shows minimal signs of fraudulent behavior. Natural responses detected."
+                    : overallFraudScore <= 50 
+                    ? "Some potential concerns detected. Review individual question analysis for details."
+                    : "Multiple fraud indicators detected. Manual review recommended."}
+                </p>
+              </div>
+              <div className="text-right">
+                {overallFraudScore <= 20 ? (
+                  <CheckCircle className="h-16 w-16 text-success" />
+                ) : overallFraudScore <= 50 ? (
+                  <AlertTriangle className="h-16 w-16 text-warning" />
+                ) : (
+                  <XCircle className="h-16 w-16 text-destructive" />
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Action Buttons */}
         <div className="flex gap-4 mb-8">
           <Button variant="outline">
@@ -142,16 +231,27 @@ const Results = () => {
           <h3 className="text-xl font-semibold mb-4">Question-by-Question Analysis</h3>
           {questions.map((q, index) => (
             <Card key={index} className="shadow-sm">
-              <CardHeader className="pb-4">
+               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-lg leading-relaxed pr-4">
                     Q{index + 1}: {q.question}
                   </CardTitle>
-                  <div className="text-right shrink-0">
-                    <div className="text-2xl font-bold text-primary mb-1">{q.score}</div>
-                    <Badge variant={getScoreColor(q.score) as any} className="text-xs">
-                      {getScoreBadge(q.score)}
-                    </Badge>
+                  <div className="text-right shrink-0 space-y-2">
+                    <div>
+                      <div className="text-2xl font-bold text-primary mb-1">{q.score}</div>
+                      <Badge variant={getScoreColor(q.score) as any} className="text-xs">
+                        {getScoreBadge(q.score)}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Shield className="h-3 w-3" />
+                        <span className="text-sm font-medium">Fraud: {q.fraudScore}</span>
+                      </div>
+                      <Badge variant={getFraudColor(q.fraudScore) as any} className="text-xs">
+                        {getFraudStatus(q.fraudScore)}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -165,6 +265,32 @@ const Results = () => {
                 <div>
                   <h4 className="font-medium text-foreground mb-2">AI Feedback:</h4>
                   <p className="text-muted-foreground">{q.feedback}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Fraud Analysis:
+                  </h4>
+                  <div className="space-y-2">
+                    {q.fraudIndicators.map((indicator, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          {indicator.detected ? (
+                            <XCircle className="h-4 w-4 text-destructive" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 text-success" />
+                          )}
+                          <span className="font-medium text-sm">{indicator.type}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-muted-foreground">{indicator.description}</div>
+                          <div className="text-xs font-medium">
+                            Confidence: {indicator.confidence}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
