@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,41 @@ const Upload = () => {
   const [candidateName, setCandidateName] = useState("");
   const [role, setRole] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [messageVisible, setMessageVisible] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const processingMessages = [
+    "AI is analyzing the conversation...",
+    "Starting transcription...",
+    "Transcription completed...",
+    "Segmenting transcript into Q&A pairs...",
+    "Analyzing and scoring answers..."
+  ];
+
+  useEffect(() => {
+    if (isProcessing) {
+      let messageIndex = 0;
+      setCurrentMessage(processingMessages[0]);
+      setMessageVisible(true);
+      
+      const interval = setInterval(() => {
+        // Fade out current message
+        setMessageVisible(false);
+        
+        setTimeout(() => {
+          // Change message and fade in
+          messageIndex = (messageIndex + 1) % processingMessages.length;
+          setCurrentMessage(processingMessages[messageIndex]);
+          setMessageVisible(true);
+        }, 300); // Wait for fade out to complete
+        
+      }, 2500); // Change message every 2.5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isProcessing]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -34,12 +67,88 @@ const Upload = () => {
 
     setIsProcessing(true);
     
+    try {
+      // Create FormData for API call
+      const formData = new FormData();
+      formData.append('audio_file', file);
+      formData.append('candidate_name', candidateName);
+      formData.append('role', role);
+
+      // Call the real API endpoint
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/process-interview`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Log API response for debugging
+      console.log('API Response Status:', response.status);
+      console.log('API Response Headers:', Object.fromEntries(response.headers));
+      console.log('API Response Data:', result);
+      
+      // Store API result in localStorage
+      localStorage.setItem('lizzy-result', JSON.stringify({
+        ...result,
+        fileName: file.name,
+        processedAt: new Date().toISOString()
+      }));
+      
+      console.log('Stored result in localStorage:', {
+        ...result,
+        fileName: file.name,
+        processedAt: new Date().toISOString()
+      });
+      
+      navigate('/results');
+    } catch (error) {
+      console.error('Error processing interview:', error);
+      toast({
+        title: "Processing Error",
+        description: "Failed to process the interview. Please try again.",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    }
+  };
+
+  const handleMockSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file || !candidateName || !role) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all fields and upload an audio file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    
     // Mock processing time
     setTimeout(() => {
-      // Store data in localStorage for demo
+      // Store mock data in localStorage for demo
       localStorage.setItem('lizzy-result', JSON.stringify({
-        candidateName,
-        role,
+        candidate: candidateName,
+        role: role,
+        final_score: 87,
+        questions: [
+          {
+            question: "Tell me about yourself",
+            answer: "I have 5 years of experience in backend development...",
+            score: 85
+          },
+          {
+            question: "What is your experience with Python?",
+            answer: "I've been working with Python for 4 years...",
+            score: 90
+          }
+        ],
         fileName: file.name,
         processedAt: new Date().toISOString()
       }));
@@ -55,7 +164,11 @@ const Upload = () => {
           <CardContent className="pt-8 pb-8">
             <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
             <h3 className="text-lg font-semibold mb-2">Processing Interview</h3>
-            <p className="text-muted-foreground">AI is analyzing the conversation...</p>
+            <p className={`text-muted-foreground transition-opacity duration-300 ease-in-out ${
+              messageVisible ? 'opacity-100' : 'opacity-0'
+            }`}>
+              {currentMessage}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -161,7 +274,7 @@ const Upload = () => {
                   variant="secondary" 
                   className="w-full" 
                   size="lg"
-                  onClick={handleSubmit}
+                  onClick={handleMockSubmit}
                 >
                   <Brain className="mr-2 h-4 w-4" />
                   Analyze Interview (Mock data)

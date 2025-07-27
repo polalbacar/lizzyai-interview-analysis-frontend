@@ -4,93 +4,65 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Brain, ArrowLeft, Download, Share2, Shield, AlertTriangle, CheckCircle, XCircle, ChevronDown } from "lucide-react";
+import { Brain, ArrowLeft, Download, Share2, Shield, AlertTriangle, CheckCircle, XCircle, ChevronDown, MessageSquare, BarChart3 } from "lucide-react";
 
-interface FraudIndicator {
-  type: string;
-  detected: boolean;
-  confidence: number;
-  description: string;
+interface FraudInsights {
+  reading_aloud: boolean;
+  external_help: boolean;
+  scripted_content: boolean;
+  confidence_level: string;
+  details: string;
 }
 
-interface Question {
+interface ApiQuestion {
   question: string;
   answer: string;
-  score: number;
-  feedback: string;
-  fraudScore: number;
-  fraudIndicators: FraudIndicator[];
+  fraud_score: number;
+  insights: FraudInsights;
+}
+
+interface ApiResponse {
+  candidate: string;
+  role: string;
+  final_fraud_score: number;
+  questions: ApiQuestion[];
 }
 
 interface ResultData {
-  candidateName: string;
+  candidate?: string;
+  candidateName?: string; // Legacy format
   role: string;
+  final_fraud_score?: number;
+  final_score?: number; // Legacy format
   fileName: string;
   processedAt: string;
+  questions?: ApiQuestion[];
 }
 
 const Results = () => {
   const navigate = useNavigate();
   const [resultData, setResultData] = useState<ResultData | null>(null);
-  const [finalScore] = useState(78); // Mock final score
-  const [overallFraudScore] = useState(15); // Mock fraud score (0-100, lower is better)
-
-  // Mock questions and answers with fraud detection
-  const [questions] = useState<Question[]>([
-    {
-      question: "Tell me about your experience with React and modern JavaScript frameworks.",
-      answer: "I have been working with React for about 3 years now. I've built several production applications using React with TypeScript, and I'm familiar with hooks, context API, and state management libraries like Redux. I also have experience with Next.js for server-side rendering.",
-      score: 85,
-      feedback: "Strong technical knowledge demonstrated. Good understanding of modern React patterns.",
-      fraudScore: 10,
-      fraudIndicators: [
-        { type: "Text-to-Speech", detected: false, confidence: 95, description: "Natural speech patterns detected" },
-        { type: "Reading Script", detected: false, confidence: 90, description: "Spontaneous response with natural pauses" },
-        { type: "External Help", detected: false, confidence: 85, description: "No suspicious background activity" }
-      ]
-    },
-    {
-      question: "Describe a challenging problem you solved in your previous role.",
-      answer: "In my last project, we had a performance issue where our application was loading slowly. I identified that we were making too many API calls and implemented a caching strategy using React Query. This reduced load times by 40%.",
-      score: 82,
-      feedback: "Excellent problem-solving approach. Shows initiative and technical depth.",
-      fraudScore: 25,
-      fraudIndicators: [
-        { type: "Text-to-Speech", detected: false, confidence: 88, description: "Natural intonation detected" },
-        { type: "Reading Script", detected: true, confidence: 70, description: "Some sections may have been rehearsed" },
-        { type: "External Help", detected: false, confidence: 92, description: "No external assistance detected" }
-      ]
-    },
-    {
-      question: "How do you handle working in a team environment?",
-      answer: "I believe communication is key. I always make sure to participate actively in stand-ups and code reviews. I'm comfortable giving and receiving feedback, and I try to mentor junior developers when possible.",
-      score: 75,
-      feedback: "Good team collaboration skills. Could provide more specific examples.",
-      fraudScore: 5,
-      fraudIndicators: [
-        { type: "Text-to-Speech", detected: false, confidence: 98, description: "Authentic voice patterns" },
-        { type: "Reading Script", detected: false, confidence: 95, description: "Natural conversational flow" },
-        { type: "External Help", detected: false, confidence: 90, description: "No signs of coaching" }
-      ]
-    },
-    {
-      question: "Where do you see yourself in 5 years?",
-      answer: "I want to continue growing as a developer and eventually move into a technical leadership role. I'm interested in architecture decisions and helping shape the technical direction of products.",
-      score: 70,
-      feedback: "Clear career aspirations. Shows ambition and forward thinking.",
-      fraudScore: 20,
-      fraudIndicators: [
-        { type: "Text-to-Speech", detected: false, confidence: 85, description: "Minor robotic qualities detected" },
-        { type: "Reading Script", detected: true, confidence: 75, description: "Response appears prepared" },
-        { type: "Long Silences", detected: true, confidence: 65, description: "Unusual pauses before answering" }
-      ]
-    }
-  ]);
+  const [finalFraudScore, setFinalFraudScore] = useState(0);
+  const [questions, setQuestions] = useState<ApiQuestion[]>([]);
 
   useEffect(() => {
     const stored = localStorage.getItem('lizzy-result');
     if (stored) {
-      setResultData(JSON.parse(stored));
+      const data = JSON.parse(stored);
+      setResultData(data);
+      
+      // Set final fraud score from API data
+      if (data.final_fraud_score !== undefined) {
+        setFinalFraudScore(data.final_fraud_score);
+      } else if (data.final_score !== undefined) {
+        // Legacy fallback - convert quality score to fraud score (inverse)
+        setFinalFraudScore(100 - data.final_score);
+      }
+      
+      // Use questions directly from API data
+      if (data.questions && Array.isArray(data.questions)) {
+        setQuestions(data.questions);
+      }
     } else {
       navigate('/');
     }
@@ -100,28 +72,37 @@ const Results = () => {
     return <div>Loading...</div>;
   }
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "success";
-    if (score >= 60) return "warning";
-    return "destructive";
-  };
-
-  const getScoreBadge = (score: number) => {
-    if (score >= 80) return "Excellent";
-    if (score >= 60) return "Good";
-    return "Needs Improvement";
-  };
-
   const getFraudColor = (score: number) => {
-    if (score <= 20) return "success";
+    if (score <= 10) return "success";
     if (score <= 50) return "warning";
     return "destructive";
   };
 
   const getFraudStatus = (score: number) => {
-    if (score <= 20) return "Low Risk";
+    if (score <= 10) return "Low Risk";
     if (score <= 50) return "Medium Risk";
     return "High Risk";
+  };
+
+  const getFraudIcon = (detected: boolean) => {
+    return detected ? (
+      <XCircle className="h-4 w-4 text-destructive" />
+    ) : (
+      <CheckCircle className="h-4 w-4 text-success" />
+    );
+  };
+
+  const getFraudIndicatorStatus = (detected: boolean) => {
+    return detected ? "Detected" : "Not Detected";
+  };
+
+  const getConfidenceColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'high': return 'text-destructive';
+      case 'medium': return 'text-warning';
+      case 'low': return 'text-success';
+      default: return 'text-muted-foreground';
+    }
   };
 
   return (
@@ -145,32 +126,32 @@ const Results = () => {
       <div className="container mx-auto px-6 py-8 max-w-6xl">
         {/* Header Info */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Interview Analysis Results</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Interview Fraud Detection Results</h1>
           <div className="flex flex-wrap gap-4 text-muted-foreground">
-            <span><strong>Candidate:</strong> {resultData.candidateName}</span>
+            <span><strong>Candidate:</strong> {resultData.candidate || resultData.candidateName}</span>
             <span><strong>Role:</strong> {resultData.role}</span>
             <span><strong>Processed:</strong> {new Date(resultData.processedAt).toLocaleString()}</span>
           </div>
         </div>
 
         {/* Main Fraud Detection Card */}
-        <Card className={`mb-8 ${overallFraudScore <= 20 ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' : overallFraudScore <= 50 ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20' : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'}`}>
+        <Card className={`mb-8 ${finalFraudScore <= 10 ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' : finalFraudScore <= 50 ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20' : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'}`}>
           <CardContent className="pt-8">
             <div className="text-center">
-              <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${overallFraudScore <= 20 ? 'bg-success/10 border-4 border-success/20' : overallFraudScore <= 50 ? 'bg-warning/10 border-4 border-warning/20' : 'bg-destructive/10 border-4 border-destructive/20'}`}>
-                <span className={`text-4xl font-bold ${overallFraudScore <= 20 ? 'text-success' : overallFraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{overallFraudScore}</span>
+              <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${finalFraudScore <= 10 ? 'bg-success/10 border-4 border-success/20' : finalFraudScore <= 50 ? 'bg-warning/10 border-4 border-warning/20' : 'bg-destructive/10 border-4 border-destructive/20'}`}>
+                <span className={`text-4xl font-bold ${finalFraudScore <= 10 ? 'text-success' : finalFraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{finalFraudScore}</span>
               </div>
               <h2 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
                 <Shield className="h-6 w-6" />
                 Overall Fraud Risk Score
               </h2>
-              <Badge variant={getFraudColor(overallFraudScore) as any} className="text-sm px-4 py-1">
-                {getFraudStatus(overallFraudScore)}
+              <Badge variant={getFraudColor(finalFraudScore) as any} className="text-sm px-4 py-1">
+                {getFraudStatus(finalFraudScore)}
               </Badge>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-                {overallFraudScore <= 20 
+                {finalFraudScore <= 10 
                   ? "Interview shows minimal signs of fraudulent behavior. Natural responses and authentic voice patterns detected throughout."
-                  : overallFraudScore <= 50 
+                  : finalFraudScore <= 50 
                   ? "Some potential fraud indicators detected. Review individual question analysis for specific concerns that need attention."
                   : "Multiple fraud indicators detected across questions. Manual review and verification strongly recommended before proceeding."}
               </p>
@@ -192,7 +173,7 @@ const Results = () => {
 
         {/* Questions and Answers */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold mb-4">Question-by-Question Analysis</h3>
+          <h3 className="text-xl font-semibold mb-4">Question-by-Question Fraud Analysis</h3>
           {questions.map((q, index) => (
             <Collapsible key={index}>
               <Card className="shadow-sm">
@@ -207,10 +188,10 @@ const Results = () => {
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <Badge 
-                          variant={getFraudColor(q.fraudScore) as any} 
+                          variant={getFraudColor(q.fraud_score) as any} 
                           className="text-sm px-3 py-1 font-medium"
                         >
-                          {getFraudStatus(q.fraudScore)}
+                          Fraud Risk: {q.fraud_score}
                         </Badge>
                         <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                       </div>
@@ -219,48 +200,75 @@ const Results = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <CardContent className="pt-0 space-y-4">
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-medium text-foreground">Risk Score:</h4>
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${q.fraudScore <= 20 ? 'bg-success text-success-foreground' : q.fraudScore <= 50 ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
-                          {q.fraudScore}
-                        </div>
+                                          <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-medium text-foreground">Fraud Risk Score:</h4>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${q.fraud_score <= 10 ? 'bg-success text-success-foreground' : q.fraud_score <= 50 ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
+                            {q.fraud_score}
+                          </div>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({getFraudStatus(q.fraud_score)})
+                        </span>
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-medium text-foreground mb-2">Candidate Response:</h4>
-                      <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-lg">
+                      <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Candidate Response:
+                      </h4>
+                      <p className="text-muted-foreground leading-relaxed bg-muted/50 border border-muted/30 p-4 rounded-lg">
                         "{q.answer}"
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-foreground mb-2">AI Feedback:</h4>
-                      <p className="text-muted-foreground">{q.feedback}</p>
-                    </div>
-                    <div>
                       <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
                         <Shield className="h-4 w-4" />
-                        Fraud Analysis:
+                        Fraud Detection Analysis:
                       </h4>
-                      <div className="space-y-2">
-                        {q.fraudIndicators.map((indicator, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-                            <div className="flex items-center gap-2">
-                              {indicator.detected ? (
-                                <XCircle className="h-4 w-4 text-destructive" />
-                              ) : (
-                                <CheckCircle className="h-4 w-4 text-success" />
-                              )}
-                              <span className="font-medium text-sm">{indicator.type}</span>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm text-muted-foreground">{indicator.description}</div>
-                              <div className="text-xs font-medium">
-                                Confidence: {indicator.confidence}%
+                                              <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="flex items-center justify-between p-3 bg-muted/50 border border-muted/30 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                {getFraudIcon(q.insights.reading_aloud)}
+                                <span className="font-medium text-sm">Reading Aloud</span>
                               </div>
+                              <span className={`text-xs font-medium ${q.insights.reading_aloud ? 'text-destructive' : 'text-success'}`}>
+                                {getFraudIndicatorStatus(q.insights.reading_aloud)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-muted/50 border border-muted/30 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                {getFraudIcon(q.insights.external_help)}
+                                <span className="font-medium text-sm">External Help</span>
+                              </div>
+                              <span className={`text-xs font-medium ${q.insights.external_help ? 'text-destructive' : 'text-success'}`}>
+                                {getFraudIndicatorStatus(q.insights.external_help)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-muted/50 border border-muted/30 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                {getFraudIcon(q.insights.scripted_content)}
+                                <span className="font-medium text-sm">Scripted Content</span>
+                              </div>
+                              <span className={`text-xs font-medium ${q.insights.scripted_content ? 'text-destructive' : 'text-success'}`}>
+                                {getFraudIndicatorStatus(q.insights.scripted_content)}
+                              </span>
                             </div>
                           </div>
-                        ))}
+                                                  <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-medium text-foreground flex items-center gap-2">
+                                <BarChart3 className="h-4 w-4" />
+                                Analysis Confidence:
+                              </h4>
+                              <Badge variant="outline" className={getConfidenceColor(q.insights.confidence_level)}>
+                                {q.insights.confidence_level.toUpperCase()}
+                              </Badge>
+                            </div>
+                            <div className="p-3 bg-muted/50 border border-muted/30 rounded-lg">
+                              <p className="text-sm text-muted-foreground">{q.insights.details}</p>
+                            </div>
+                          </div>
                       </div>
                     </div>
                   </CardContent>
@@ -273,33 +281,57 @@ const Results = () => {
         {/* Summary */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>Summary & Recommendations</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Fraud Detection Summary
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {finalFraudScore <= 10 && (
+                <div>
+                  <h4 className="font-medium text-success mb-2 flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    Low Fraud Risk Detected
+                  </h4>
+                  <p className="text-muted-foreground">
+                    The analysis indicates minimal fraud indicators. The candidate's responses appear 
+                    natural and authentic with no significant signs of deceptive behavior.
+                  </p>
+                </div>
+              )}
+              {finalFraudScore > 10 && finalFraudScore <= 50 && (
+                <div>
+                  <h4 className="font-medium text-warning mb-2 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Medium Fraud Risk Detected
+                  </h4>
+                  <p className="text-muted-foreground">
+                    Some potential fraud indicators have been detected. Review the individual question 
+                    analysis for specific concerns and consider additional verification if needed.
+                  </p>
+                </div>
+              )}
+              {finalFraudScore > 50 && (
+                <div>
+                  <h4 className="font-medium text-destructive mb-2 flex items-center gap-2">
+                    <XCircle className="h-4 w-4" />
+                    High Fraud Risk Detected
+                  </h4>
+                  <p className="text-muted-foreground">
+                    Multiple fraud indicators detected across questions. <strong>Manual review and 
+                    verification strongly recommended</strong> before proceeding with this candidate.
+                  </p>
+                </div>
+              )}
               <div>
-                <h4 className="font-medium text-success mb-2">Strengths:</h4>
+                <h4 className="font-medium text-primary mb-2">Next Steps:</h4>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Strong technical knowledge in React and modern JavaScript</li>
-                  <li>Good problem-solving abilities with concrete examples</li>
-                  <li>Clear communication and structured responses</li>
+                  <li>Review detailed fraud analysis for each question above</li>
+                  <li>Consider conducting a follow-up interview if medium/high risk detected</li>
+                  <li>Verify candidate's background and references thoroughly</li>
+                  <li>Document any additional verification steps taken</li>
                 </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-warning mb-2">Areas for Improvement:</h4>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Could provide more specific examples of team collaboration</li>
-                  <li>Leadership experience could be better articulated</li>
-                  <li>Career goals could be more detailed</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-primary mb-2">Recommendation:</h4>
-                <p className="text-muted-foreground">
-                  <strong>Proceed to next round.</strong> Candidate shows strong technical competency 
-                  and good communication skills. Consider follow-up questions about leadership 
-                  experience and specific project examples.
-                </p>
               </div>
             </div>
           </CardContent>
