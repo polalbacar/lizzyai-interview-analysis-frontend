@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowLeft, Download, Share2, Shield, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Brain, ArrowLeft, Download, Share2, Shield, AlertTriangle, CheckCircle, XCircle, ChevronDown } from "lucide-react";
 
 interface FraudIndicator {
   type: string;
@@ -190,64 +191,79 @@ const Results = () => {
         </div>
 
         {/* Questions and Answers */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <h3 className="text-xl font-semibold mb-4">Question-by-Question Analysis</h3>
           {questions.map((q, index) => (
-            <Card key={index} className="shadow-sm">
-               <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg leading-relaxed pr-4">
-                    Q{index + 1}: {q.question}
-                  </CardTitle>
-                  <div className="text-center shrink-0">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-2 ${q.fraudScore <= 20 ? 'bg-success/10 border-2 border-success/20' : q.fraudScore <= 50 ? 'bg-warning/10 border-2 border-warning/20' : 'bg-destructive/10 border-2 border-destructive/20'}`}>
-                      <span className={`text-xl font-bold ${q.fraudScore <= 20 ? 'text-success' : q.fraudScore <= 50 ? 'text-warning' : 'text-destructive'}`}>{q.fraudScore}</span>
-                    </div>
-                    <Badge variant={getFraudColor(q.fraudScore) as any} className="text-xs px-2 py-1">
-                      {getFraudStatus(q.fraudScore)}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-foreground mb-2">Candidate Response:</h4>
-                  <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-lg">
-                    "{q.answer}"
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-foreground mb-2">AI Feedback:</h4>
-                  <p className="text-muted-foreground">{q.feedback}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Fraud Analysis:
-                  </h4>
-                  <div className="space-y-2">
-                    {q.fraudIndicators.map((indicator, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          {indicator.detected ? (
-                            <XCircle className="h-4 w-4 text-destructive" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4 text-success" />
-                          )}
-                          <span className="font-medium text-sm">{indicator.type}</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-muted-foreground">{indicator.description}</div>
-                          <div className="text-xs font-medium">
-                            Confidence: {indicator.confidence}%
-                          </div>
-                        </div>
+            <Collapsible key={index}>
+              <Card className="shadow-sm">
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="pb-4 hover:bg-muted/30 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-medium text-muted-foreground">Q{index + 1}</span>
+                        <CardTitle className="text-left text-lg leading-relaxed">
+                          {q.question}
+                        </CardTitle>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="text-center">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-1 ${q.fraudScore <= 20 ? 'bg-success text-success-foreground' : q.fraudScore <= 50 ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
+                            {q.fraudScore}
+                          </div>
+                          <Badge 
+                            variant={getFraudColor(q.fraudScore) as any} 
+                            className="text-xs px-2 py-0.5 font-medium"
+                          >
+                            {getFraudStatus(q.fraudScore)}
+                          </Badge>
+                        </div>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                      </div>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div>
+                      <h4 className="font-medium text-foreground mb-2">Candidate Response:</h4>
+                      <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-lg">
+                        "{q.answer}"
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-foreground mb-2">AI Feedback:</h4>
+                      <p className="text-muted-foreground">{q.feedback}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Fraud Analysis:
+                      </h4>
+                      <div className="space-y-2">
+                        {q.fraudIndicators.map((indicator, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              {indicator.detected ? (
+                                <XCircle className="h-4 w-4 text-destructive" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4 text-success" />
+                              )}
+                              <span className="font-medium text-sm">{indicator.type}</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-muted-foreground">{indicator.description}</div>
+                              <div className="text-xs font-medium">
+                                Confidence: {indicator.confidence}%
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           ))}
         </div>
 
