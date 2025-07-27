@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# 🎤 LizzyAI Frontend
 
-## Project info
+**React + TypeScript Frontend for AI-Powered Interview Analysis**
 
-**URL**: https://lovable.dev/projects/161ea367-27fb-494a-951e-76e3e853e816
+This is the frontend application for LizzyAI, providing a modern and intuitive interface for uploading interview recordings and viewing AI-powered analysis results.
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+- **📁 File Upload Interface**: Modern drag-and-drop interface for audio files
+- **🎵 Audio Format Support**: MP3, WAV, M4A, MP4, WebM support
+- **📊 Results Visualization**: Interactive charts and detailed analysis reports
+- **🔍 Fraud Detection Display**: Clear visualization of fraud indicators and scores
+- **📱 Responsive Design**: Mobile-friendly interface built with Tailwind CSS
+- **🎨 Modern UI**: Clean design using shadcn/ui components
 
-**Use Lovable**
+## 🏗️ Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/161ea367-27fb-494a-951e-76e3e853e816) and start prompting.
+- **⚛️ React 18** - Modern React with hooks
+- **📘 TypeScript** - Type-safe development
+- **⚡ Vite** - Fast build tool and dev server
+- **🎨 Tailwind CSS** - Utility-first CSS framework
+- **🧩 shadcn/ui** - High-quality component library
+- **🎯 React Router** - Client-side routing
+- **🔄 React Query** - Server state management
+- **🎭 Lucide Icons** - Beautiful icon library
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Development
 
-**Use your preferred IDE**
+### Prerequisites
+- Node.js 18+ with npm
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Setup
+```bash
+# Install dependencies
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
 ```
 
-**Edit a file directly in GitHub**
+### Development URLs
+- **Frontend**: http://localhost:8080
+- **Backend API**: http://localhost:8000 (when running full stack)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📁 Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/
+│   └── ui/          # shadcn/ui components
+├── hooks/           # Custom React hooks
+├── lib/             # Utility functions
+├── pages/           # Page components
+│   ├── Index.tsx    # Landing page
+│   ├── Upload.tsx   # File upload interface
+│   ├── Results.tsx  # Analysis results display
+│   └── NotFound.tsx # 404 page
+├── data/            # Mock data and types
+└── main.tsx         # Application entry point
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎨 UI Components
 
-## What technologies are used for this project?
+This project uses [shadcn/ui](https://ui.shadcn.com/) for consistent, accessible components:
+- Form elements (Button, Input, Select, etc.)
+- Layout components (Card, Dialog, Sheet, etc.)
+- Data display (Table, Charts, Badges, etc.)
+- Navigation (Sidebar, Breadcrumb, etc.)
 
-This project is built with:
+## 🔗 Integration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The frontend communicates with the FastAPI backend through:
+- REST API endpoints for file upload and processing
+- Real-time status updates during analysis
+- Structured JSON responses for results display
 
-## How can I deploy this project?
+## 📋 Pages Overview
 
-Simply open [Lovable](https://lovable.dev/projects/161ea367-27fb-494a-951e-76e3e853e816) and click on Share -> Publish.
+- **Upload Page**: File selection, upload progress, processing status
+- **Results Page**: Comprehensive analysis display with fraud detection scores
+- **Index Page**: Application overview and navigation
 
-## Can I connect a custom domain to my Lovable project?
+## 🎯 Key Features
 
-Yes, you can!
+### File Upload
+- Drag-and-drop interface
+- Progress tracking
+- File validation
+- Multiple format support
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Results Display
+- Interactive fraud detection scores
+- Question-answer segmentation
+- Detailed analysis insights
+- Export capabilities
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Responsive Design
+- Mobile-optimized layouts
+- Touch-friendly interactions
+- Accessible navigation
+- Dark/light theme support
+
+## 🛠️ Build Process
+
+```bash
+# Development build with hot reload
+npm run build:dev
+
+# Production build
+npm run build
+
+# Analyze bundle size
+npm run build && npx vite-bundle-analyzer
+```
+
+---
+
+This frontend provides an intuitive interface for LizzyAI's powerful interview analysis capabilities, making AI-powered recruitment accessible and user-friendly.
