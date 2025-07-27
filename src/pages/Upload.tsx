@@ -150,10 +150,23 @@ const Upload = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                <Brain className="mr-2 h-4 w-4" />
-                Analyze Interview
-              </Button>
+              <div className="space-y-3">
+                <Button type="submit" className="w-full" size="lg">
+                  <Brain className="mr-2 h-4 w-4" />
+                  Analyze Interview
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleSubmit}
+                >
+                  <Brain className="mr-2 h-4 w-4" />
+                  Analyze Interview (Mock data)
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
