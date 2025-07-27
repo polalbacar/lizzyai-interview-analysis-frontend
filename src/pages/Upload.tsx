@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Upload as UploadIcon, Mic, CheckCircle, Users, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { harryMockData } from "@/data/mockData";
 
 const Upload = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -132,26 +133,18 @@ const Upload = () => {
     
     // Mock processing time
     setTimeout(() => {
-      // Store mock data in localStorage for demo
-      localStorage.setItem('lizzy-result', JSON.stringify({
-        candidate: candidateName,
-        role: role,
-        final_score: 87,
-        questions: [
-          {
-            question: "Tell me about yourself",
-            answer: "I have 5 years of experience in backend development...",
-            score: 85
-          },
-          {
-            question: "What is your experience with Python?",
-            answer: "I've been working with Python for 4 years...",
-            score: 90
-          }
-        ],
+      // Transform Harry's mock data to match expected format
+      const transformedData = {
+        candidate: harryMockData.api_response.candidate,
+        role: harryMockData.api_response.role,
+        final_fraud_score: harryMockData.api_response.final_fraud_score,
+        questions: harryMockData.api_response.questions,
         fileName: file.name,
-        processedAt: new Date().toISOString()
-      }));
+        processedAt: harryMockData.timestamp
+      };
+      
+      // Store mock data in localStorage
+      localStorage.setItem('lizzy-result', JSON.stringify(transformedData));
       
       navigate('/results');
     }, 3000);
